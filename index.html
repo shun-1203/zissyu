@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>忘れ物・落とし物共有アプリ</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+<body>
+  <h1>忘れ物・落とし物共有アプリ</h1>
+  <button id="getProfile">LINEログイン & プロフィール取得</button>
+  <div id="output"></div>
+
+  <script>
+    // ★ここに自分のLIFF IDを入れる
+    const liffId = "YOUR_LIFF_ID";
+
+    async function main() {
+      await liff.init({ liffId });
+      if (!liff.isLoggedIn()) {
+        liff.login();
+      }
+    }
+    main();
+
+    document.getElementById("getProfile").onclick = async () => {
+      const profile = await liff.getProfile();
+      document.getElementById("output").innerHTML =
+        `<p>こんにちは、${profile.displayName} さん！</p>
+         <img src="${profile.pictureUrl}" width="100">`;
+    };
+  </script>
+</body>
+</html>
