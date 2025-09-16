@@ -11,38 +11,46 @@
   <div id="output"></div>
 
   <script>
-    const liffId = "2008097109-4gW3w9Xg"; // あなたのLIFF ID
+  const liffId = "2008097109-4gW3w9Xg"; // LIFF ID
 
-    async function main() {
-      try {
-        await liff.init({ liffId });
+  async function main() {
+    try {
+      console.log("LIFF init 開始");
+      await liff.init({ liffId });
+      console.log("LIFF init 完了");
 
-        if (!liff.isLoggedIn()) {
-          liff.login();
-          return; // ログイン後は自動でリロードされるのでここで終了
-        }
-
-        // ログイン済みならボタンを有効化
-        document.getElementById("getProfile").disabled = false;
-
-        document.getElementById("getProfile").onclick = async () => {
-          try {
-            const profile = await liff.getProfile();
-            document.getElementById("output").innerHTML =
-              `<p>こんにちは、${profile.displayName} さん！</p>
-               <img src="${profile.pictureUrl}" width="100">`;
-          } catch (err) {
-            console.error("プロフィール取得失敗:", err);
-          }
-        };
-
-      } catch (error) {
-        console.error("LIFF init エラー:", error);
+      if (!liff.isLoggedIn()) {
+        console.log("未ログイン → ログイン処理へ");
+        liff.login();
+        return;
       }
-    }
+      console.log("ログイン済み");
 
-    main();
-  </script>
+      // ボタンを有効化
+      document.getElementById("getProfile").disabled = false;
+
+      document.getElementById("getProfile").onclick = async () => {
+        try {
+          const profile = await liff.getProfile();
+          console.log("プロフィール取得成功:", profile);
+          document.getElementById("output").innerHTML =
+            `<p>こんにちは、${profile.displayName} さん！</p>
+             <img src="${profile.pictureUrl}" width="100">`;
+        } catch (err) {
+          console.error("プロフィール取得失敗:", err);
+          alert("プロフィール取得に失敗しました: " + err);
+        }
+      };
+
+    } catch (error) {
+      console.error("LIFF初期化エラー:", error);
+      alert("LIFF初期化エラー: " + error);
+    }
+  }
+
+  main();
+</script>
+
 </body>
 </html>
 
