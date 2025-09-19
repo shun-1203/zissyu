@@ -11,11 +11,9 @@
 <body class="container my-4">
   <h1 class="mb-4">忘れ物・落とし物共有アプリ</h1>
 
-  <!-- プロフィール取得 -->
   <button id="getProfile" class="btn btn-success mb-3">LINEログイン & プロフィール取得</button>
   <div id="profile" class="mb-4"></div>
 
-  <!-- 登録フォーム -->
   <h2>忘れ物登録</h2>
   <form id="form" class="mb-4">
     <input type="text" id="item" placeholder="アイテム名" class="form-control mb-2" required>
@@ -23,24 +21,18 @@
     <button type="submit" class="btn btn-primary">登録</button>
   </form>
 
-  <!-- 一覧表示 -->
   <h2>忘れ物一覧</h2>
   <div id="list" class="list-group"></div>
 
   <script>
-    // ★ここを自分のLIFF IDに置き換えてください
-    const liffId = "2008097109-4gW3w9Xg";
-    // ★ここを自分のGASのWebアプリURLに置き換えてください
-    const gasUrl = "https://script.google.com/a/macros/ict.shimanet.ed.jp/s/AKfycbwDpLJ1ycLBHvvkCZbp32XcOvPT0wMiyCUb3WMaQhloRrrULue7a7kH506TBRefO5NP/exec";
+    const liffId = "2008097109-4gW3w9Xg"; // 自分のLIFF ID
+    const gasUrl = "https://script.google.com/a/macros/ict.shimanet.ed.jp/s/AKfycby3__bJXXmRAvE3j6W8pbYTU8atjf3Gm6g8XRF5HZClWeDAkzTSSvdSo8KeXK3A41LL/exec"; // CORS対応済みGASのWebアプリURL
 
     let userName = "匿名";
 
-    // LIFF初期化
     async function main() {
       await liff.init({ liffId });
-      if (!liff.isLoggedIn()) {
-        liff.login();
-      }
+      if (!liff.isLoggedIn()) liff.login();
     }
     main();
 
@@ -57,7 +49,7 @@
       }
     };
 
-    // 一覧を読み込む処理
+    // 一覧取得
     async function loadList() {
       try {
         const res = await fetch(gasUrl);
@@ -92,14 +84,13 @@
           body: JSON.stringify(data),
           headers: { "Content-Type": "application/json" }
         });
-        loadList(); // 登録後に再読み込み
+        loadList();
         e.target.reset();
       } catch (err) {
         alert("登録に失敗しました: " + err);
       }
     };
 
-    // 初回読み込み
     loadList();
   </script>
 </body>
