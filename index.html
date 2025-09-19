@@ -7,50 +7,69 @@
 </head>
 <body>
   <h1>忘れ物・落とし物共有アプリ</h1>
-  <button id="getProfile" disabled>LINEログイン & プロフィール取得</button>
-  <div id="output"></div>
+
+  <button id="getProfile">LINEログイン & プロフィール取得</button>
+  <div id="profile"></div>
+
+  <h2>忘れ物登録</h2>
+  <form id="form">
+    <input type="text" id="item" placeholder="アイテム名" required>
+    <input type="text" id="place" placeholder="場所" required>
+    <button type="submit">登録</button>
+  </form>
+
+  <h2>忘れ物一覧</h2>
+  <div id="list"></div>
 
   <script>
-  const liffId = "2008097109-4gW3w9Xg"; // LIFF ID
+    // ★自分のLIFF IDに置き換えてください
+    const liffId = "2008097109-4gW3w9Xg";
 
-  async function main() {
-    try {
-      console.log("LIFF init 開始");
+    let userName = "匿名"; 
+    let lostItems = JSON.parse(localStorage.getItem("lostItems")) || [];
+
+    async function main() {
       await liff.init({ liffId });
-      console.log("LIFF init 完了");
-
       if (!liff.isLoggedIn()) {
-        console.log("未ログイン → ログイン処理へ");
         liff.login();
-        return;
       }
-      console.log("ログイン済み");
-
-      // ボタンを有効化
-      document.getElementById("getProfile").disabled = false;
-
-      document.getElementById("getProfile").onclick = async () => {
-        try {
-          const profile = await liff.getProfile();
-          console.log("プロフィール取得成功:", profile);
-          document.getElementById("output").innerHTML =
-            `<p>こんにちは、${profile.displayName} さん！</p>
-             <img src="${profile.pictureUrl}" width="100">`;
-        } catch (err) {
-          console.error("プロフィール取得失敗:", err);
-          alert("プロフィール取得に失敗しました。LINEアプリで開いてください。: " + err);
-        }
-      };
-
-    } catch (error) {
-      console.error("LIFF初期化エラー:", error);
-      alert("LIFF初期化エラー: " + error);
     }
-  }
+    main();
 
-  main();
-</script>
+    document.getElementById("getProfile").onclick = async () => {
+      try {
+        const profile = await liff.getProfile();
+        userName = profile.displayName;
+        document.getElementById("profile").innerHTML =
+          `<p>こんにちは、${userName} さん！</p>
+           <img src="${profile.pictureUrl}" width="80">`;
+      } catch (err) {
+        alert("プロフィール取得に失敗: " + err);
+      }
+    };
 
+    function renderList() {
+      const list = document.getElementById("list");
+      list.innerHTML = "";
+      lostItems.forEach((data) => {
+        list.innerHTML += `<p>${data.item}（${data.place}） by ${data.user} / ${data.date}</p>`;
+      });
+    }
+
+    document.getElementById("form").onsubmit = (e) => {
+      e.preventDefault();
+      const item = document.getElementById("item").value;
+      const place = document.getElementById("place").value;
+      const date = new Date().toLocaleString();
+
+      lostItems.push({ item, place, user: userName, date });
+      localStorage.setItem("lostItems", JSON.stringify(lostItems));
+
+      renderList();
+      e.target.reset();
+    };
+
+    renderList();
+  </script>
 </body>
 </html>
-
