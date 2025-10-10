@@ -24,72 +24,43 @@
   <div id="list" class="list-group"></div>
 
   <script>
-    const liffId = "2008097109-4gW3w9Xg"; // LIFF ID
-    const gasUrl = "https://script.google.com/macros/s/AKfycbzR4k7TjmlA5-CuygGhrfv_4788LhFFUK6bsZRTSt0Jx0KDweViI2VFQRP6itVRHU5DwA/exec"; // GAS /exec URL
+const gasUrl = "https://script.google.com/macros/s/AKfycbxt7R1Cs-rC6e8w-WzWuegTFX_XnGGnrgcNXGoFls-a39jIvuGM3uVRdZelr2ncn045Ng/exec"; // ここを自分のURLに！
 
-    let userName = "匿名";
+let userName = "LINEユーザー"; // 仮の名前（LIFFで取得できる場合は差し替えOK）
 
-    async function main() {
-      await liff.init({ liffId });
-      if (!liff.isLoggedIn()) liff.login();
+document.getElementById("form").onsubmit = async (e) => {
+  e.preventDefault();
+  const item = document.getElementById("item").value;
+  const place = document.getElementById("place").value;
+  const date = new Date().toLocaleString();
+
+  const data = { item, place, user: userName, date };
+
+  try {
+    const res = await fetch(gasUrl, {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: { "Content-Type": "application/json" }
+    });
+    const text = await res.text();
+    if (text === "OK") {
+      alert("登録完了！");
+      e.target.reset();
+      loadList();
+    } else {
+      alert("登録エラー: " + text);
     }
-    main();
+  } catch (err) {
+    alert("登録に失敗しました: " + err.message);
+  }
+};
 
-    document.getElementById("getProfile").onclick = async () => {
-      try {
-        const profile = await liff.getProfile();
-        userName = profile.displayName;
-        document.getElementById("profile").innerHTML =
-          `<p>こんにちは、${userName} さん！</p>
-           <img src="${profile.pictureUrl}" width="80" class="rounded-circle">`;
-      } catch (err) {
-        alert("プロフィール取得に失敗: " + err);
-        console.error(err);
-      }
-    };
-
-    async function loadList() {
-      try {
-        const res = await fetch(gasUrl);
-        const items = await res.json();
-        const list = document.getElementById("list");
-        list.innerHTML = "";
-        items.forEach((data) => {
-          list.innerHTML += `
-            <div class="list-group-item">
-              <strong>${data.item}</strong>（${data.place}）
-              <br><small>by ${data.user} / ${data.date}</small>
-            </div>`;
-        });
-      } catch (err) {
-        console.error("一覧取得に失敗:", err);
-      }
-    }
-
-    document.getElementById("form").onsubmit = async (e) => {
-      e.preventDefault();
-      const item = document.getElementById("item").value;
-      const place = document.getElementById("place").value;
-      const date = new Date().toLocaleString();
-      const data = { item, place, user: userName, date };
-
-      try {
-        const res = await fetch(gasUrl, {
-          method: "POST",
-          body: JSON.stringify(data),
-          headers: { "Content-Type": "application/json" }
-        });
-        if (!res.ok) throw new Error("HTTPエラー: " + res.status);
-        loadList();
-        e.target.reset();
-      } catch (err) {
-        alert("登録に失敗しました: " + err.message);
-        console.error(err);
-      }
-    };
-
-    loadList();
-  </script>
+async function loadList() {
+  const res = await fetch(gasUrl);
+  const list = await res.json();
+  console.log(list); // データ確認用
+}
+</script>
 
 </body>
 </html>
